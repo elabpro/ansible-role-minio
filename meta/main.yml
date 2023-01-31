@@ -1,0 +1,9 @@
+galaxy_info:
+  author: Jakob Oettinger
+  role_name: minio
+  description: Install and Configure Minio-S3-Object-Storage
+  company: 
+  license: GPL-3.0-only
+  min_ansible_version: "2.10"
+
+  dependencies: []
