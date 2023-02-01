@@ -1,38 +1,136 @@
-Role Name
+minio
 =========
 
-A brief description of the role goes here.
+Install and Configure Minio S3 Object-Storage.
+
+This role allows you to deploy Minio as single-node, as well as highly available distributed multi-node setup.
+
+It is recommended to deploy a load balancer such as HAProxy when setting up Minio in distributed mode with multiple nodes.
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+- No Requirements
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+The default values for the variables are set in `defaults/main.yml`:
+```yml
+# Minio binaries path
+minio_server_bin: /usr/local/bin/minio
+minio_client_bin: /usr/local/bin/mc
+
+# Minio release to install. defaults to latest when values are empty or specify binary release (i.e. RELEASE.2022-10-29T06-21-33Z) https://dl.minio.io/server/minio/release/linux-amd64/archive/
+minio_server_release: ""
+minio_client_release: ""
+
+# Runtime user and group for the Minio server service
+minio_user: minio
+minio_group: minio
+
+# Path to the file containing the ENV variables for the Minio server
+minio_server_envfile: /etc/default/minio
+
+# Minio server listen address
+minio_bind_console_addr: ":9001"
+minio_bind_api_addr: ":9000"
+
+# Minio server data directories
+minio_server_datadirs:
+  - /var/lib/minio
+# When set to true Ansible will create the minio_server_datadirs
+minio_server_make_datadirs: true
+
+# Minio server cluster node list. Set when deploying distributed multi-node setup (i.e. - https://minio-0{1...5}.example.com:9000/mnt/minio-disk{1...2})
+minio_server_cluster_nodes: [ ]
+
+# Additional environment variables to be set in minio server environment
+minio_server_env_extra: ""
+
+# Additional Minio server CLI options
+minio_server_opts: ""
+
+# Switches to enable/disable the Minio server and/or Minio client installation
+minio_install_server: true
+minio_install_client: true
+
+# Default root user. Provide at role execution
+minio_root_user: minio
+minio_root_password: "changeme!"
+
+# Optional: Path to certificate and private key that should be copied to the server
+minio_ssl_certificate: ""
+minio_ssl_certificate_key: ""
+```
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+- No Dependencies
+
+Example Inventory
+-----------------
+
+```yml
+all:
+  children:
+    minio:
+      hosts:
+        minio-01.example.com:
+          ansible_host: 10.199.34.152
+        minio-02.example.com:
+          ansible_host: 10.199.34.153
+        minio-03.example.com:
+          ansible_host: 10.199.34.154
+        minio-04.example.com:
+          ansible_host: 10.199.34.155
+        minio-05.example.com:
+          ansible_host: 10.199.34.156
+```
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+```yml
+# Example: Configure Minio single-node setup without ssl certificates
+- hosts: minio
+  become: yes
+  gather_facts: yes
+  roles:
+    - role: minio
+      minio_root_user: minioadmin
+      minio_root_password: "{{ vault_minio_root_password }}"
+```
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
-
+```yml
+# Example: Configure Minio distributed multi-node setup with SSL certificates
+- hosts: minio
+  become: yes
+  gather_facts: yes
+  roles:
+    - role: minio
+      minio_server_release: "RELEASE.2022-11-08T05-27-07Z"
+      minio_client_release: "RELEASE.2022-10-09T21-10-59Z"
+      minio_bind_console_addr: ":9001"
+      minio_bind_api_addr: ":9000"
+      minio_server_datadirs:
+        - /mnt/minio-data1
+        - /mnt/minio-data2
+      minio_server_make_datadirs: true
+      minio_server_cluster_nodes:
+        - https://minio-0{1...5}.example.com:9000/mnt/minio-data{1...2}
+      minio_root_user: minioadmin
+      minio_root_password: "{{ vault_minio_root_password }}"
+      minio_ssl_certificate: "{{ inventory_dir }}/group_vars/secrets/minio-netbox.test.2ln.mueller.de.crt"
+      minio_ssl_certificate_key: "{{ inventory_dir }}/group_vars/secrets/minio-netbox.test.2ln.mueller.de.key"
+```
 License
 -------
 
-BSD
+GPL-3.0-only
 
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+Jakob Oettinger & Oleg Franko

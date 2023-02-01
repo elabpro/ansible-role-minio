@@ -6,12 +6,12 @@
 - name: Build the Minio server download url with lastest release
   set_fact:
     _minio_server_download_url: "{{ _minio_server_download_base_url }}/minio"
-  when: minio_server_release | length == 0 or minio_server_release == "latest"
+  when: minio_server_release | length == 0
 
 - name: "Build the Minio server download url with release {{ minio_server_release }}"
   set_fact:
     _minio_server_download_url: "{{ _minio_server_download_base_url }}/archive/minio.{{ minio_server_release }}"
-  when: minio_server_release | length > 0 and minio_server_release != "latest"
+  when: minio_server_release | length > 0
 
 - name: "Get the Minio server checksum for {{ go_arch }} architecture"
   set_fact:
@@ -52,6 +52,39 @@
   retries: 5
   delay: 2
   notify: restart minio
+
+- name: Create default certs directories
+  file:
+    path: "/home/{{ minio_user }}/{{ item }}"
+    state: directory
+    owner: "{{ minio_user }}"
+    group: "{{ minio_group }}"
+    mode: 0700
+  with_items:
+    - .minio/
+    - .minio/certs
+    - .minio/certs/CAs
+
+- name: Copy TLS certificate to server
+  copy:
+    src: "{{ minio_ssl_certificate }}" 
+    dest: "/home/{{ minio_user }}/.minio/certs/public.crt"
+    owner: "{{ minio_user }}"
+    group: "{{ minio_group }}"
+    mode: '0660'
+  when:
+    - minio_ssl_certificate is defined and minio_ssl_certificate | length >0
+  notify: restart minio
+
+- name: Copy TLS private key to server
+  copy:
+    src: "{{ minio_ssl_certificate_key }}" 
+    dest: "/home/{{ minio_user }}/.minio/certs/private.key"
+    owner: "{{ minio_user }}"
+    group: "{{ minio_group }}"
+    mode: '0660'
+  when:
+    - minio_ssl_certificate_key is defined and minio_ssl_certificate_key | length >0
 
 - name: Generate the Minio server envfile
   template:
