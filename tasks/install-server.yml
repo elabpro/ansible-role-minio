@@ -111,3 +111,15 @@
     name: minio
     state: started
     enabled: true
+
+- name: Flush handlers
+  meta: flush_handlers
+
+- name: Gather service facts
+  service_facts:
+
+- name: Make sure minio service is running
+  debug:
+    msg: " {{ ansible_facts['services']['minio.service']['state'] }}"
+  register: service_result
+  failed_when: service_result.msg != ' running'
