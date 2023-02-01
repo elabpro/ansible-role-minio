@@ -1,5 +1,5 @@
 galaxy_info:
-  author: Jakob Oettinger
+  author: Jakob Oettinger & Oleg Franko
   role_name: minio
   description: Install and Configure Minio-S3-Object-Storage
   company: 
