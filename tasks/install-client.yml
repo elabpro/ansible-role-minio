@@ -3,6 +3,12 @@
 - name: Set the Minio client download base url
   set_fact:
     _minio_client_download_base_url: "https://dl.minio.io/client/mc/release/linux-{{ go_arch }}"
+  when: minio_client_download_base_url is undefined
+
+- name: Set the Minio client download base url from local Variable
+  set_fact:
+    _minio_client_download_base_url: "{{ minio_client_download_base_url }}"
+  when: minio_client_download_base_url is defined
 
 - name: Build the Minio client download url with lastest release
   set_fact:
