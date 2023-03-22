@@ -21,9 +21,16 @@ The default values for the variables are set in `defaults/main.yml`:
 minio_server_bin: /usr/local/bin/minio
 minio_client_bin: /usr/local/bin/mc
 
-# Minio release to install. defaults to latest when values are empty or specify binary release (i.e. RELEASE.2022-10-29T06-21-33Z) https://dl.minio.io/server/minio/release/linux-amd64/archive/
+# Minio release to install. defaults to latest when values are empty or specify binary release (i.e. RELEASE.2022-10-29T06-21-33Z) 
 minio_server_release: ""
 minio_client_release: ""
+
+# Default download URL for Minio server is 'https://dl.minio.io/server/minio/release/linux-amd64/archive/' and is hardcoded in the installation task.
+# Default download URL for Minio client is 'https://dl.minio.io/client/mc/release/linux-amd64/archive/' and is hardcoded in the installation task.
+
+# Optional: The download URL's can be overwritten to use a alternative path:
+# minio_server_download_base_url: https://files.repository.mueller.de/minio/server/linux-amd64
+# minio_client_download_base_url: https://files.repository.mueller.de/minio/client/linux-amd64
 
 # Runtime user and group for the Minio server service
 minio_user: minio
