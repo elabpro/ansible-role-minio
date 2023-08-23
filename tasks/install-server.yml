@@ -73,24 +73,54 @@
 
 - name: Copy TLS certificate to server
   copy:
-    src: "{{ minio_ssl_certificate }}" 
+    src: "{{ copy_minio_ssl_certificate }}" 
     dest: "/home/{{ minio_user }}/.minio/certs/public.crt"
     owner: "{{ minio_user }}"
     group: "{{ minio_group }}"
     mode: '0660'
   when:
-    - minio_ssl_certificate is defined and minio_ssl_certificate | length >0
+    - copy_minio_ssl_certificate is defined and copy_minio_ssl_certificate | length >0
   notify: restart minio
 
 - name: Copy TLS private key to server
   copy:
-    src: "{{ minio_ssl_certificate_key }}" 
+    src: "{{ copy_minio_ssl_certificate_key }}" 
     dest: "/home/{{ minio_user }}/.minio/certs/private.key"
     owner: "{{ minio_user }}"
     group: "{{ minio_group }}"
     mode: '0660'
   when:
-    - minio_ssl_certificate_key is defined and minio_ssl_certificate_key | length >0
+    - copy_minio_ssl_certificate_key is defined and copy_minio_ssl_certificate_key | length >0
+  notify: restart minio
+
+- name: Add minio user to ssl-cert group
+  user:
+    name: "{{ minio_user }}"
+    groups: "ssl-cert"
+    append: yes
+  when:
+    - existing_minio_ssl_certificate is defined and existing_minio_ssl_certificate | length >0
+    - existing_minio_ssl_certificate_key is defined and existing_minio_ssl_certificate_key | length >0
+
+- name: Create a symbolic link to existing certificate
+  file:
+    src: "{{ existing_minio_ssl_certificate }}"
+    dest: "/home/{{ minio_user }}/.minio/certs/public.crt"
+    state: link
+    force: yes
+  when:
+    - existing_minio_ssl_certificate is defined and existing_minio_ssl_certificate | length >0
+  notify: restart minio
+
+- name: Create a symbolic link to existing key
+  file:
+    src: "{{ existing_minio_ssl_certificate_key }}"
+    dest: "/home/{{ minio_user }}/.minio/certs/private.key"
+    state: link
+    force: yes
+  when:
+    - existing_minio_ssl_certificate_key is defined and existing_minio_ssl_certificate_key | length >0
+  notify: restart minio
 
 - name: Generate the Minio server envfile
   template:

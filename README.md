@@ -67,8 +67,12 @@ minio_root_user: minio
 minio_root_password: "changeme!"
 
 # Optional: Path to certificate and private key that should be copied to the server
-minio_ssl_certificate: ""
-minio_ssl_certificate_key: ""
+copy_minio_ssl_certificate: ""
+copy_minio_ssl_certificate_key: ""
+
+# Optional: Path to existing certificate and private key files on remote server
+existing_minio_ssl_certificate: ""
+existing_minio_ssl_certificate_key: ""
 ```
 
 Dependencies
@@ -129,8 +133,8 @@ Example Playbook
         - https://minio-0{1...5}.example.com:9000/mnt/minio-data{1...2}
       minio_root_user: minioadmin
       minio_root_password: "{{ vault_minio_root_password }}"
-      minio_ssl_certificate: "{{ inventory_dir }}/group_vars/secrets/minio-netbox.test.2ln.mueller.de.crt"
-      minio_ssl_certificate_key: "{{ inventory_dir }}/group_vars/secrets/minio-netbox.test.2ln.mueller.de.key"
+      copy_minio_ssl_certificate: "{{ inventory_dir }}/group_vars/secrets/minio-netbox.test.2ln.mueller.de.crt"
+      copy_minio_ssl_certificate_key: "{{ inventory_dir }}/group_vars/secrets/minio-netbox.test.2ln.mueller.de.key"
 ```
 License
 -------
