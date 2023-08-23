@@ -50,5 +50,9 @@ minio_root_user: minio
 minio_root_password: "changeme!"
 
 # Optional: Path to certificate and private key that should be copied to the server
-minio_ssl_certificate: ""
-minio_ssl_certificate_key: ""
+copy_minio_ssl_certificate: ""
+copy_minio_ssl_certificate_key: ""
+
+# Optional: Path to existing certificate and private key files on remote server
+existing_minio_ssl_certificate: ""
+existing_minio_ssl_certificate_key: ""
