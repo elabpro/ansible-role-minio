@@ -135,6 +135,7 @@ Example Playbook
       minio_root_password: "{{ vault_minio_root_password }}"
       copy_minio_ssl_certificate: "{{ inventory_dir }}/group_vars/secrets/minio-netbox.test.2ln.mueller.de.crt"
       copy_minio_ssl_certificate_key: "{{ inventory_dir }}/group_vars/secrets/minio-netbox.test.2ln.mueller.de.key"
+      copy_minio_ssl_ca: "{{ inventory_dir }}/group_vars/secrets/ca.crt"
 ```
 License
 -------
