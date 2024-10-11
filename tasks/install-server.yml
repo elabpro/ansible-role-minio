@@ -71,6 +71,16 @@
     - .minio/certs
     - .minio/certs/CAs
 
+- name: Create default certs directories
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "root"
+    group: "root"
+    mode: 0755
+  with_items:
+    - /usr/local/share/ca-certificates/extra/
+
 - name: Copy TLS certificate to server
   copy:
     src: "{{ copy_minio_ssl_certificate }}" 
@@ -92,6 +102,30 @@
   when:
     - copy_minio_ssl_certificate_key is defined and copy_minio_ssl_certificate_key | length >0
   notify: restart minio
+
+- name: Copy CA to server
+  copy:
+    src: "{{ copy_minio_ssl_ca }}" 
+    dest: "/home/{{ minio_user }}/.minio/certs/CAs/ca.crt"
+    owner: "{{ minio_user }}"
+    group: "{{ minio_group }}"
+    mode: '0660'
+  when:
+    - copy_minio_ssl_certificate_key is defined and copy_minio_ssl_certificate_key | length >0
+  notify: restart minio
+
+- name: Copy CA to server
+  copy:
+    src: "{{ copy_minio_ssl_ca }}" 
+    dest: "/usr/local/share/ca-certificates/extra/minio.crt"
+    owner: "{{ minio_user }}"
+    group: "{{ minio_group }}"
+    mode: '0644'
+  when:
+    - copy_minio_ssl_certificate_key is defined and copy_minio_ssl_certificate_key | length >0
+
+- name: Update CA certificates
+  shell: update-ca-certificates
 
 - name: Add minio user to ssl-cert group
   user:
